@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [STUDIO:"notifierFlow"] [STUDIO] -->
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="bb263713-2f85-4f65-b5ed-313d16f28dbb">
+		<http:request-connection host="newsapi.org" port="443" protocol="HTTPS"/>
+	</http:request-config>
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="04430792-a7ed-4e2d-bdd9-7067a21cc327" >
+		<email:smtp-connection user="YOUR_MAIL_ID" password="ENTER_YOUR_APP_PASSWORD" port="587" host="smtp.gmail.com">
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="0688dcab-3c5a-4738-8daf-b13c868c209c">
+		<http:listener-connection host="0.0.0.0" port="8081" readTimeout="3000"/>
+	</http:listener-config>
+	<!-- [STUDIO:"notifierFlow"]<flow name="notifierFlow" doc:id="882a2280-1cb3-4fc7-8f81-9acb024a8711" >
+		<scheduler doc:name="Scheduler" doc:id="e8771289-cb96-4fed-a3e8-31cac3363bdc" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<http:request method="GET" doc:name="Request" doc:id="d44bfb0b-5671-4528-aebc-503e379533f5" config-ref="HTTP_Request_configuration" path="/v2/everything">
+			<http:query-params ><![CDATA[#[output application/java
+&#45;&#45;-
+{
+	q : attributes.queryParams.topic default "technology",
+	apiKey : "c0ff8182cfa5425f99b811ad74bc8011",
+	pageSize : "5",
+	sortBy : "publishedAt"
+}&#93;&#93;&#93;></http:query-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="974fd30a-ae92-4d4d-8fb1-40a532425648" message="#[payload&#93;"/>
+		<ee:transform doc:name="Transform Message" doc:id="247c95ef-fe3c-4418-88ab-014cdfb54ca9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml writeDeclaration = false
+ns html http://www.w3.org/1999/xhtml
+
+&#45;&#45;-
+html: {
+  body: {
+    h2: "Daily Tech News Digest",
+    p: "Here are the top 5 latest news articles:",
+    
+    div: payload.articles map (item, index) -> {
+      h3: ((index + 1) as String) ++ ". " ++ item.title,
+      
+      img @(src: (item.urlToImage default ""), width: "400"): {},
+      
+      p: (item.description default "No description available"),
+      
+      a @(href: item.url, target: "_blank"): "Read full article",
+      
+      hr: {}
+    },
+
+    hr: {},
+
+    p: "&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;",
+    p: "Generated automatically by MuleSoft Integration",
+    p: "Created by: Tejas Kinge"
+  }
+}&#93;&#93;></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<email:send doc:name="Send1" doc:id="6a0c0d09-870d-4d23-9fac-abd5496eac9d" config-ref="Email_SMTP" fromAddress="tejaskinge30@gmail.com" subject="Daily News Digest">
+			<email:to-addresses >
+				<email:to-address value="tkstar2official@gmail.com" />
+			</email:to-addresses>
+			<email:body contentType="text/html">
+			</email:body>
+		</email:send>
+	</flow> [STUDIO] -->
+	<flow name="newsSystemApiFlow" doc:id="9aa922c2-768b-4ca1-a34a-d4433fbe3970">
+		<http:listener doc:name="Listener" doc:id="70fd0845-ffb9-4549-a213-56879740e5b1" config-ref="HTTP_Listener_config" path="api/news"/>
+		<http:request method="GET" doc:name="Request" doc:id="493d730c-e593-4792-82ac-caf63478e771" config-ref="HTTP_Request_configuration" path="/v2/everything">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	q : attributes.queryParams.topic default "technology",
+	sortBy : "publishedAt",
+	pageSize : "5",
+	apiKey : "ENTER_YOUR_API_KEY"
+	
+}]]]></http:query-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="c817722d-d441-4d18-8153-04f9ddb08558" />
+	</flow>
+	<flow name="newsProcessFlow" doc:id="c6c7de19-83d7-4849-8941-ab787dc4230d" >
+		<scheduler doc:name="Scheduler" doc:id="ae1c01e9-5702-4f80-af78-6d16585dca34" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<http:request method="GET" doc:name="Request" doc:id="db58808d-aae6-4a5f-aefc-7868e5251ce1" config-ref="HTTP_Request_configuration" url="http://localhost:8081/api/news?topic=technology">
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="c9b9ae77-0eb6-4a46-bd10-ddf9a9ae9c1b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml writeDeclaration = false
+ns html http://www.w3.org/1999/xhtml
+
+---
+html: {
+  body: {
+    h2: "Daily Tech News Digest",
+    p: "Here are the top 5 latest news articles:",
+    
+    div: payload.articles map (item, index) -> {
+      h3: ((index + 1) as String) ++ ". " ++ item.title,
+      
+      img @(src: (item.urlToImage default ""), width: "400"): {},
+      
+      p: (item.description default "No description available"),
+      
+      a @(href: item.url, target: "_blank"): "Read full article",
+      
+      hr: {}
+    },
+
+    hr: {},
+
+    p: "--------------------------------------",
+    p: "Generated automatically by MuleSoft Integration",
+    p: "Created by: Tejas Kinge"
+  }
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<email:send doc:name="Send" doc:id="87ef1f12-0da1-4434-8c5e-582356a0aeb0" config-ref="Email_SMTP" fromAddress="ENTER_YOUR_EMAIlID" subject="Daily News Digest">
+			<email:to-addresses>
+				<email:to-address value="ENTER_RECEIVER_EMAILID" />
+			</email:to-addresses>
+			<email:body contentType="text/html" />
+		</email:send>
+	</flow>
+</mule>
