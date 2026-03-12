@@ -1,6 +1,6 @@
-# 📰 Daily News Notification System – MuleSoft Integration
+📰 Daily News Notification System – MuleSoft Integration
 
-## 📌 Project Overview
+📌 Project Overview
 This project is a MuleSoft-based integration that automatically fetches the latest news from an external News API and sends a formatted email newsletter.
 
 The system demonstrates **API-Led Connectivity** by separating responsibilities into System and Process layers.
@@ -15,21 +15,21 @@ The email is sent automatically using a **Scheduler**.
 
 ---
 
-## 🏗 Architecture
+🏗 Architecture
 
 Scheduler → Process API → System API → External News API
 
-### Components
+Components
 
-**Scheduler**
+Scheduler
 - Triggers the flow automatically at a scheduled time.
 
-**Process API**
+Process API
 - Calls the System API
 - Formats the response using DataWeave
 - Sends the email newsletter
 
-**System API**
+System API
 - Fetches news from the external News API
 - Handles query parameters such as topic
 
@@ -38,9 +38,9 @@ Scheduler → Process API → System API → External News API
 
 ---
 
-## 🔄 Mule Flows
+🔄 Mule Flows
 
-### 1️⃣ System API Flow – `newsSystemApiFlow`
+1️⃣ System API Flow – `newsSystemApiFlow`
 
 Purpose: Fetch news from the external API.
 
@@ -55,7 +55,7 @@ Logger
 Return Response
 
 
-### 2️⃣ Process API Flow – `newsProcessFlow`
+2️⃣ Process API Flow – `newsProcessFlow`
 
 Purpose: Format the news and send an email newsletter.
 
@@ -69,7 +69,7 @@ Transform Message (HTML Newsletter)
     ↓
 Send Email
 
-## ⚙ Technologies Used
+⚙ Technologies Used
 
 - MuleSoft Anypoint Studio
 - DataWeave 2.0
@@ -81,7 +81,7 @@ Send Email
 
 ---
 
-## 🚀 Features
+🚀 Features
 
 - API-Led Architecture (System API + Process API)
 - Automated daily news email
